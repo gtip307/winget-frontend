@@ -1,0 +1,82 @@
+[
+  {
+    "id": "Google.Chrome",
+    "name": "Google Chrome"
+  },
+  {
+    "id": "Microsoft.Edge",
+    "name": "Microsoft Edge"
+  },
+  {
+    "id": "Mozilla.Firefox",
+    "name": "Mozilla Firefox"
+  },
+  {
+    "id": "7zip.7zip",
+    "name": "7-Zip"
+  },
+  {
+    "id": "Notepad++.Notepad++",
+    "name": "Notepad++"
+  },
+  {
+    "id": "VideoLAN.VLC",
+    "name": "VLC Media Player"
+  },
+  {
+    "id": "Spotify.Spotify",
+    "name": "Spotify"
+  },
+  {
+    "id": "Git.Git",
+    "name": "Git"
+  },
+  {
+    "id": "SlackTechnologies.Slack",
+    "name": "Slack"
+  },
+  {
+    "id": "Zoom.Zoom",
+    "name": "Zoom"
+  },
+  {
+    "id": "Adobe.Acrobat.Reader.64-bit",
+    "name": "Adobe Acrobat Reader DC"
+  },
+  {
+    "id": "OBSProject.OBSStudio",
+    "name": "OBS Studio"
+  },
+  {
+    "id": "WinRAR.WinRAR",
+    "name": "WinRAR"
+  },
+  {
+    "id": "Valve.Steam",
+    "name": "Steam"
+  },
+  {
+    "id": "CPUID.CPU-Z",
+    "name": "CPU-Z"
+  },
+  {
+    "id": "TeamViewer.TeamViewer",
+    "name": "TeamViewer"
+  },
+  {
+    "id": "Oracle.VirtualBox",
+    "name": "VirtualBox"
+  },
+  {
+    "id": "Microsoft.PowerToys",
+    "name": "PowerToys"
+  },
+  {
+    "id": "TeraByte.UninstallTool",
+    "name": "Uninstall Tool"
+  },
+  {
+    "id": "JetBrains.IntelliJIDEA.Community",
+    "name": "IntelliJ IDEA Community Edition"
+  }
+]

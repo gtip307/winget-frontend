@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [appId, setAppId] = useState('');
   const [appName, setAppName] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
+
+  useEffect(() => {
+    fetch('/winget_packages.json')
+      .then(res => res.json())
+      .then(data => setAllPackages(data));
+  }, []);
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setAppName(value);
+
+    const filtered = allPackages
+      .filter(pkg =>
+        pkg.name.toLowerCase().includes(value.toLowerCase()) ||
+        pkg.id.toLowerCase().includes(value.toLowerCase())
+      )
+      .slice(0, 5); // Limit to 5 suggestions
+
+    setSuggestions(filtered);
+  };
+
+  const handleSuggestionClick = (pkg) => {
+    setAppId(pkg.id);
+    setAppName(pkg.name);
+    setSuggestions([]);
+  };
 
   const generatePackage = async () => {
     const formData = new FormData();
@@ -17,7 +45,6 @@ export default function App() {
     if (response.ok) {
       const blob = await response.blob();
 
-      // Robust filename extraction from Content-Disposition
       const contentDisposition = response.headers.get('content-disposition');
       console.log("📦 Content-Disposition header:", contentDisposition);
       let filename = 'winget_package.zip';
@@ -34,7 +61,6 @@ export default function App() {
         }
       }
 
-      // Trigger the download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -43,7 +69,6 @@ export default function App() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-
     } else {
       alert('Failed to generate package');
     }
@@ -60,12 +85,29 @@ export default function App() {
       />
       <br />
       <input
-        placeholder="App Name (optional)"
+        placeholder="App Name (type to search)"
         value={appName}
-        onChange={(e) => setAppName(e.target.value)}
+        onChange={handleNameChange}
         style={{ width: '300px', marginBottom: 10 }}
       />
-      <br />
+      <div style={{ marginBottom: 10 }}>
+        {suggestions.map((pkg, index) => (
+          <div
+            key={index}
+            onClick={() => handleSuggestionClick(pkg)}
+            style={{
+              cursor: 'pointer',
+              background: '#f0f0f0',
+              padding: '5px',
+              marginBottom: '2px',
+              borderRadius: '4px',
+              maxWidth: '300px'
+            }}
+          >
+            {pkg.name} ({pkg.id})
+          </div>
+        ))}
+      </div>
       <button onClick={generatePackage}>Generate Package</button>
     </div>
   );
