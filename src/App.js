@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 export default function App() {
   const [appId, setAppId] = useState('');
   const [appName, setAppName] = useState('');
-  const [downloadUrl, setDownloadUrl] = useState('');
-  const [downloadFilename, setDownloadFilename] = useState('winget_package.zip');
 
   const generatePackage = async () => {
     const formData = new FormData();
@@ -29,9 +27,16 @@ export default function App() {
         }
       }
 
+      // Programmatically trigger download
       const url = URL.createObjectURL(blob);
-      setDownloadUrl(url);
-      setDownloadFilename(filename);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
     } else {
       alert('Failed to generate package');
     }
@@ -55,13 +60,6 @@ export default function App() {
       />
       <br />
       <button onClick={generatePackage}>Generate Package</button>
-      {downloadUrl && (
-        <div style={{ marginTop: 20 }}>
-          <a href={downloadUrl} download={downloadFilename}>
-            Download Package
-          </a>
-        </div>
-      )}
     </div>
   );
 }
