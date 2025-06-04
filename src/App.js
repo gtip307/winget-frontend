@@ -18,17 +18,17 @@ export default function App() {
 
     if (response.ok) {
       const blob = await response.blob();
-      
-      // Extract filename from content-disposition header
+
+      // Extract filename from Content-Disposition header
       const contentDisposition = response.headers.get('content-disposition');
-      let filename = 'winget_package.zip'; // fallback filename
+      let filename = 'winget_package.zip';
       if (contentDisposition) {
-        const match = contentDisposition.match(/filename="?(.+)"?/);
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
         if (match && match[1]) {
           filename = match[1];
         }
       }
-      
+
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
       setDownloadFilename(filename);
@@ -57,7 +57,9 @@ export default function App() {
       <button onClick={generatePackage}>Generate Package</button>
       {downloadUrl && (
         <div style={{ marginTop: 20 }}>
-          <a href={downloadUrl} download={downloadFilename}>Download Package</a>
+          <a href={downloadUrl} download={downloadFilename}>
+            Download Package
+          </a>
         </div>
       )}
     </div>
