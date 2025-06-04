@@ -17,19 +17,23 @@ export default function App() {
     if (response.ok) {
       const blob = await response.blob();
 
-      // Improved filename extraction
+      // Robust filename extraction from Content-Disposition
       const contentDisposition = response.headers.get('content-disposition');
       let filename = 'winget_package.zip';
 
       if (contentDisposition) {
-        const match = contentDisposition.match(/filename\*=UTF-8''(.+)|filename="?([^"]+)"?/);
-        const extracted = match?.[1] || match?.[2];
-        if (extracted) {
-          filename = decodeURIComponent(extracted);
+        try {
+          const match = contentDisposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/);
+          const extracted = match?.[1] || match?.[2];
+          if (extracted) {
+            filename = decodeURIComponent(extracted);
+          }
+        } catch (e) {
+          console.warn('Filename extraction failed:', e);
         }
       }
 
-      // Trigger download with correct filename
+      // Trigger the download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
