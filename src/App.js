@@ -4,6 +4,7 @@ export default function App() {
   const [appId, setAppId] = useState('');
   const [appName, setAppName] = useState('');
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [downloadFilename, setDownloadFilename] = useState('winget_package.zip');
 
   const generatePackage = async () => {
     const formData = new FormData();
@@ -16,10 +17,21 @@ export default function App() {
     });
 
     if (response.ok) {
-      // Assuming backend returns a file as blob
       const blob = await response.blob();
+      
+      // Extract filename from content-disposition header
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = 'winget_package.zip'; // fallback filename
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+)"?/);
+        if (match && match[1]) {
+          filename = match[1];
+        }
+      }
+      
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
+      setDownloadFilename(filename);
     } else {
       alert('Failed to generate package');
     }
@@ -45,7 +57,7 @@ export default function App() {
       <button onClick={generatePackage}>Generate Package</button>
       {downloadUrl && (
         <div style={{ marginTop: 20 }}>
-          <a href={downloadUrl} download="winget_package.zip">Download Package</a>
+          <a href={downloadUrl} download={downloadFilename}>Download Package</a>
         </div>
       )}
     </div>
