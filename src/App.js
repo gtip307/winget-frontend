@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import Fuse from 'fuse.js';
 
 export default function App() {
   const [appId, setAppId] = useState('');
   const [appName, setAppName] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [allPackages, setAllPackages] = useState([]);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+
+  const priorityList = ['Google.Chrome', 'Microsoft.Edge', 'Mozilla.Firefox', '7zip.7zip', 'Notepad++.Notepad++', 'VideoLAN.VLC'];
 
   useEffect(() => {
     fetch('/winget_packages.json')
@@ -12,24 +16,52 @@ export default function App() {
       .then(data => setAllPackages(data));
   }, []);
 
+  const isEnglish = (str) => /^[\x00-\x7F]+$/.test(str);
+
   const handleNameChange = (e) => {
     const value = e.target.value;
     setAppName(value);
+    setHighlightIndex(-1);
 
-    const filtered = allPackages
-      .filter(pkg =>
-        pkg.name.toLowerCase().includes(value.toLowerCase()) ||
-        pkg.id.toLowerCase().includes(value.toLowerCase())
-      )
-      .slice(0, 5); // Limit to 5 suggestions
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
 
-    setSuggestions(filtered);
+    const fuse = new Fuse(allPackages, {
+      keys: ['name', 'id'],
+      threshold: 0.3,
+    });
+
+    let results = fuse.search(value).map(r => r.item);
+    results = results.filter(pkg => isEnglish(pkg.name || pkg.id));
+
+    results.sort((a, b) => {
+      const aPriority = priorityList.includes(a.id) ? 0 : 1;
+      const bPriority = priorityList.includes(b.id) ? 0 : 1;
+      return aPriority - bPriority;
+    });
+
+    setSuggestions(results.slice(0, 10));
   };
 
   const handleSuggestionClick = (pkg) => {
     setAppId(pkg.id);
     setAppName(pkg.name);
     setSuggestions([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === 'Enter' && highlightIndex >= 0) {
+      e.preventDefault();
+      handleSuggestionClick(suggestions[highlightIndex]);
+    }
   };
 
   const generatePackage = async () => {
@@ -44,7 +76,6 @@ export default function App() {
 
     if (response.ok) {
       const blob = await response.blob();
-
       const contentDisposition = response.headers.get('content-disposition');
       console.log("📦 Content-Disposition header:", contentDisposition);
       let filename = 'winget_package.zip';
@@ -88,20 +119,22 @@ export default function App() {
         placeholder="App Name (type to search)"
         value={appName}
         onChange={handleNameChange}
+        onKeyDown={handleKeyDown}
         style={{ width: '300px', marginBottom: 10 }}
       />
       <div style={{ marginBottom: 10 }}>
         {suggestions.map((pkg, index) => (
           <div
-            key={index}
+            key={pkg.id}
             onClick={() => handleSuggestionClick(pkg)}
             style={{
               cursor: 'pointer',
-              background: '#f0f0f0',
+              background: highlightIndex === index ? '#d0ebff' : '#f0f0f0',
               padding: '5px',
               marginBottom: '2px',
               borderRadius: '4px',
-              maxWidth: '300px'
+              maxWidth: '300px',
+              fontWeight: priorityList.includes(pkg.id) ? 'bold' : 'normal'
             }}
           >
             {pkg.name} ({pkg.id})
