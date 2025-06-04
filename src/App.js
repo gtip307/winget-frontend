@@ -19,6 +19,7 @@ export default function App() {
 
       // Robust filename extraction from Content-Disposition
       const contentDisposition = response.headers.get('content-disposition');
+      console.log("📦 Content-Disposition header:", contentDisposition);
       let filename = 'winget_package.zip';
 
       if (contentDisposition) {
