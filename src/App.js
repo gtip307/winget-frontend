@@ -8,7 +8,10 @@ export default function App() {
   const [allPackages, setAllPackages] = useState([]);
   const [highlightIndex, setHighlightIndex] = useState(-1);
 
-  const priorityList = ['Google.Chrome', 'Microsoft.Edge', 'Mozilla.Firefox', '7zip.7zip', 'Notepad++.Notepad++', 'VideoLAN.VLC'];
+  const priorityList = [
+    'Google.Chrome', 'Microsoft.Edge', 'Mozilla.Firefox',
+    '7zip.7zip', 'Notepad++.Notepad++', 'VideoLAN.VLC'
+  ];
 
   useEffect(() => {
     fetch('/winget_packages.json')
@@ -42,7 +45,7 @@ export default function App() {
       return aPriority - bPriority;
     });
 
-    setSuggestions(results.slice(0, 10));
+    setSuggestions(results.slice(0, 30));
   };
 
   const handleSuggestionClick = (pkg) => {
@@ -54,10 +57,10 @@ export default function App() {
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setHighlightIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+      setHighlightIndex(prev => Math.min(prev + 1, suggestions.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setHighlightIndex((prev) => Math.max(prev - 1, 0));
+      setHighlightIndex(prev => Math.max(prev - 1, 0));
     } else if (e.key === 'Enter' && highlightIndex >= 0) {
       e.preventDefault();
       handleSuggestionClick(suggestions[highlightIndex]);
@@ -77,7 +80,6 @@ export default function App() {
     if (response.ok) {
       const blob = await response.blob();
       const contentDisposition = response.headers.get('content-disposition');
-      console.log("📦 Content-Disposition header:", contentDisposition);
       let filename = 'winget_package.zip';
 
       if (contentDisposition) {
@@ -122,7 +124,16 @@ export default function App() {
         onKeyDown={handleKeyDown}
         style={{ width: '300px', marginBottom: 10 }}
       />
-      <div style={{ marginBottom: 10 }}>
+      <div
+        style={{
+          marginBottom: 10,
+          maxHeight: '250px',
+          overflowY: 'auto',
+          border: suggestions.length ? '1px solid #ccc' : 'none',
+          borderRadius: '6px',
+          maxWidth: '300px'
+        }}
+      >
         {suggestions.map((pkg, index) => (
           <div
             key={pkg.id}
@@ -133,7 +144,6 @@ export default function App() {
               padding: '5px',
               marginBottom: '2px',
               borderRadius: '4px',
-              maxWidth: '300px',
               fontWeight: priorityList.includes(pkg.id) ? 'bold' : 'normal'
             }}
           >
